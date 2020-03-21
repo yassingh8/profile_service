@@ -32,30 +32,14 @@ pipeline {
                 '''
         }
     }
-  stage('Docker Image Build') {
-      steps{
-         sh "docker build -t profile_service:latest ."
+  stage('Docker Image Build Push') {
+        steps{
+           sh '''docker build -t 10.0.1.11:5000/profile_service:latest .
+                 docker push 10.0.1.11:5000/profile_service
+                 docker rmi 10.0.1.11:5000/profile_service
+              '''
+        }
       }
-    }
-    stage('Docker save'){
-        steps{
-            sh "docker save profile_service:latest>profile_service.tar"
-        }
-    }
- 
-    stage('Upload to S3'){
-        steps{
-            withAWS(region:'us-east-1',credentials:'aws-cred')
-            {
-                s3Upload(bucket:'bucketforsprint',file:'profile_service.tar',workingDir:'./');
-            }
-        }
-    }
-    stage('Tar remove'){
-        steps{
-            sh "rm profile_service.tar"
-        }
-    }
   }
  
 }
